@@ -4,7 +4,7 @@ A single-page, mobile-first landing page for the **LDS Quotes** iOS app, built f
 Instagram "link in bio" slot.
 
 - `index.html` — the whole page (no build step, no dependencies except Google Fonts)
-- `go/index.html` — legacy redirect to the App Store (buttons now link direct; kept for cached URLs)
+- `go/index.html` — click-counting interstitial: auto-redirects to the App Store, with a manual button and in-app-browser instructions as fallback
 - `assets/app-icon.png` — app icon, exported from the app's asset catalog
 - `assets/favicon.png` — favicon / Apple touch icon
 - `assets/shots/` — real screenshots captured from the app in the iOS Simulator
@@ -12,21 +12,20 @@ Instagram "link in bio" slot.
 
 ## Where the links point
 
-Every call-to-action is a **plain direct link** to the App Store with the Instagram
-campaign token attached:
+Every call-to-action goes to `/go`, which counts the click and bounces on to the App
+Store link with the Instagram campaign token attached:
 
 ```
 https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8
 ```
 
-Direct on purpose: in-app browsers (Instagram's especially) reliably open the App
-Store from a real user tap on an apps.apple.com link, but suppress JS-initiated
-redirects. The `/go` interstitial that used to sit in between broke exactly that,
-so the buttons no longer route through it. `/go` still works for anything that has
-the old URL cached.
+In-app browsers (Instagram's especially) suppress JS-initiated navigation, so the
+auto-redirect can quietly fail there. `/go` is designed for that: it shows a big
+"Open the App Store" button (a real user tap always gets through) and instructions
+to use the ··· menu → "Open in external browser" for the stubborn case.
 
-The page also carries Apple's Smart App Banner meta tag, so Safari visitors get a
-native GET banner at the top for free.
+The landing page also carries Apple's Smart App Banner meta tag, so Safari visitors
+get a native GET banner at the top for free.
 
 ## Deploy — Cloudflare Pages
 
@@ -52,11 +51,8 @@ DNS the record is created for you.
 | Number | Where to read it |
 |---|---|
 | People who opened the link | Cloudflare Web Analytics — pageviews of `/` |
-| Product-page views & installs from those taps | **App Store Connect → Analytics → Sources** — campaign `Instagram` (the `ct`/`pt` tokens on every button) |
-
-Button-tap counting via the `/go` interstitial was removed — it cost App Store
-handoff reliability in in-app browsers, and Apple's campaign attribution already
-reports the numbers that matter (views and downloads per campaign).
+| People who tapped "Download" | Cloudflare Web Analytics — pageviews of `/go` (`?src=` says which button) |
+| Store page views & installs | **App Store Connect → Analytics → Sources** — campaign `Instagram` |
 
 ## GitHub Pages (backup)
 

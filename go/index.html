@@ -7,31 +7,28 @@
 <meta name="robots" content="noindex">
 
 <!--
-  Click-counting redirect.
+  Click-counting interstitial.
 
-  Every "Download on the App Store" button on the landing page points here instead of
-  going straight to Apple. Cloudflare Web Analytics records this as a pageview of /go,
-  so the hit count for /go IS the number of App Store button clicks. Then we bounce the
-  visitor on to Apple.
+  Every "Download on the App Store" button on the landing page points here. Cloudflare
+  Web Analytics records this as a pageview of /go, so the hit count for /go IS the
+  number of App Store button clicks. Then we bounce the visitor on to Apple.
 
-  This page is mostly reached from inside the Instagram in-app browser, often via a
-  link shortener, so the bounce is one plain https hop to apps.apple.com:
-  - in real Safari, apps.apple.com hands straight off to the App Store app
-  - in an in-app browser it loads Apple's web page for the app — listing,
-    screenshots and the Get button — and the Get tap opens the App Store
-  - the redirect targets window.top, in case a shortener serves the page in a frame
-  - a plain meta refresh (not inside noscript) is the fallback when JS is blocked
-  - the manual link stays on screen the whole time
-
-  Deliberately NOT here: an automatic itms-apps:// retry. In webviews that had
-  already loaded Apple's page it popped a "Cannot open page" dialog.
+  The journey is usually Instagram in-app browser → (shortener) → here, and in-app
+  browsers suppress JS-initiated navigation, so the auto-redirect quietly fails there.
+  That's why this page is honest about being a stop-over:
+  - the auto hop still fires (works in real browsers; Safari hands apps.apple.com
+    straight to the App Store app)
+  - a big manual button is the real path in-app: a user tap on an apps.apple.com
+    link is the one navigation in-app browsers always honour
+  - below it, instructions for the stubborn case: ··· menu → open in external browser
+  - a plain meta refresh covers the no-JS case
 
   The ?src= query string says which button was clicked (hero / final / sticky / footer)
   and shows up in Cloudflare under the /go path's query breakdown.
 -->
 
-<!-- JS-less fallback: give the analytics beacon a second, then go -->
-<meta http-equiv="refresh" content="1;url=https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">
+<!-- JS-less fallback: give the analytics beacon a moment, then go -->
+<meta http-equiv="refresh" content="2;url=https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">
 
 <link rel="icon" href="../assets/favicon.png">
 <style>
@@ -41,10 +38,9 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     text-align:center; padding:24px;
   }
-  .box{max-width:320px}
-  img{width:76px; height:76px; border-radius:18px; box-shadow:0 10px 30px rgba(46,50,38,.18)}
+  .box{max-width:340px}
+  .icon{width:76px; height:76px; border-radius:18px; box-shadow:0 10px 30px rgba(46,50,38,.18)}
   p{color:#5C6151; font-size:15px; margin:18px 0 0}
-  a{color:#6C7C4F}
   .spin{
     margin:20px auto 0; width:22px; height:22px; border-radius:50%;
     border:2.5px solid rgba(46,50,38,.15); border-top-color:#8C9C6E;
@@ -52,28 +48,42 @@
   }
   @keyframes spin{to{transform:rotate(360deg)}}
   @media (prefers-reduced-motion:reduce){ .spin{animation:none} }
+  .store-btn{
+    display:inline-flex; align-items:center; gap:10px; margin-top:22px;
+    background:#2E3226; color:#FFFDF7; text-decoration:none; font-weight:600;
+    font-size:16px; padding:14px 26px; border-radius:999px;
+    box-shadow:0 10px 28px rgba(46,50,38,.24);
+  }
+  .store-btn svg{width:20px; height:20px; flex:none; fill:currentColor}
+  .hint{
+    margin-top:26px; padding:14px 16px; border-radius:14px; text-align:left;
+    background:#FFFDF7; border:1px solid rgba(46,50,38,.10);
+    font-size:13.5px; color:#5C6151; line-height:1.55;
+  }
+  .hint b{color:#2E3226}
 </style>
 </head>
 <body>
   <div class="box">
-    <img src="../assets/app-icon.png" alt="LDS Quotes">
+    <img class="icon" src="../assets/app-icon.png" alt="LDS Quotes">
     <div class="spin" aria-hidden="true"></div>
     <p>Taking you to the App&nbsp;Store…</p>
-    <p><a id="fallback" href="https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">Tap here if it doesn&rsquo;t open</a></p>
+
+    <a class="store-btn" href="https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.36 12.72c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.83-.81-3-.79-1.55.02-2.98.9-3.77 2.29-1.61 2.79-.41 6.92 1.15 9.18.76 1.11 1.67 2.35 2.86 2.31 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.78.74 2.99.72 1.23-.02 2.02-1.13 2.78-2.24.88-1.29 1.24-2.54 1.26-2.6-.03-.01-2.41-.93-2.4-3.7ZM14.1 5.9c.63-.77 1.06-1.83.94-2.9-.91.04-2.02.61-2.67 1.37-.58.68-1.09 1.77-.95 2.81 1.02.08 2.05-.52 2.68-1.28Z"/></svg>
+      Open the App&nbsp;Store
+    </a>
+
+    <div class="hint">
+      <b>Still not redirecting?</b> You&rsquo;re probably in Instagram&rsquo;s built-in browser.
+      Tap the <b>&middot;&middot;&middot;</b> menu in the top-right corner and choose
+      <b>&ldquo;Open in external browser&rdquo;</b> &mdash; the App&nbsp;Store will open from there.
+    </div>
   </div>
 
 <script>
 (function () {
   var STORE = 'https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8';
-
-  // One https hop, nothing clever. In real Safari, apps.apple.com hands straight off
-  // to the App Store app. In the Instagram in-app browser it loads Apple's web page
-  // for the app — listing, screenshots and the Get button — which is exactly the
-  // right landing: the user taps Get and iOS opens the App Store.
-  //
-  // (An earlier version auto-retried with itms-apps:// — in webviews that had
-  // already loaded Apple's page it could pop a "Cannot open page" dialog, so
-  // the scheme trick is now reserved for the manual link only.)
 
   function goTo(url) {
     // a shortener may serve us inside a frame — aim for the top window,
@@ -83,6 +93,7 @@
   }
 
   // Short pause so the Cloudflare Web Analytics beacon fires before we navigate away.
+  // In-app browsers may ignore this JS hop entirely — that's what the button is for.
   setTimeout(function () { goTo(STORE); }, 300);
 })();
 </script>
