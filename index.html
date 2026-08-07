@@ -221,6 +221,57 @@ section{padding:clamp(58px,11vw,104px) 0}
   .shot figcaption b{font-size:15px}
 }
 
+/* ---------- theme strip (same feed, five looks) ---------- */
+.themes{
+  display:grid; grid-template-columns:repeat(5,1fr);
+  gap:clamp(12px,2.4vw,24px); align-items:start;
+}
+.theme{margin:0; text-align:center}
+.theme .phone{border-radius:26px; padding:7px; box-shadow:var(--shadow-md), 0 0 0 1px rgba(255,255,255,.07) inset}
+.theme .screen{border-radius:20px}
+.theme figcaption{
+  display:inline-flex; align-items:center; gap:7px; margin-top:14px;
+  font-size:13px; font-weight:600; color:var(--ink-soft);
+  background:var(--paper); border:1px solid var(--line); border-radius:999px;
+  padding:6px 14px; box-shadow:var(--shadow-sm);
+}
+.theme .swatch{width:10px; height:10px; border-radius:50%; flex:none}
+.themes-note{
+  text-align:center; margin:clamp(26px,4vw,38px) auto 0; max-width:52ch;
+  color:var(--ink-soft); font-size:15.5px; text-wrap:balance;
+}
+.themes-note b{color:var(--ink)}
+
+@media (max-width:760px){
+  .themes{
+    grid-template-columns:repeat(5, 44vw);
+    gap:14px; overflow-x:auto; scroll-snap-type:x mandatory;
+    padding-bottom:10px; margin-inline:calc(50% - 50vw); padding-inline:5vw;
+    scrollbar-width:none;
+  }
+  .themes::-webkit-scrollbar{display:none}
+  .theme{scroll-snap-align:center}
+}
+
+/* ---------- everything-else checklist ---------- */
+.checklist{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:12px 28px;
+  max-width:880px; margin-inline:auto;
+}
+.checklist li{
+  list-style:none; display:flex; gap:11px; align-items:flex-start;
+  font-size:15.5px; color:var(--ink-soft); line-height:1.45; padding:6px 0;
+}
+.checklist li b{color:var(--ink); font-weight:600}
+.checklist .tick{
+  flex:none; width:22px; height:22px; margin-top:1px; border-radius:50%;
+  display:grid; place-items:center;
+  background:rgba(140,156,110,.16); border:1px solid rgba(140,156,110,.25);
+}
+.checklist .tick svg{width:11px; height:11px; stroke:var(--sage-deep); fill:none; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round}
+@media (max-width:900px){ .checklist{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:560px){ .checklist{grid-template-columns:1fr; gap:2px} }
+
 /* quote wall */
 .wall{columns:3; column-gap:16px}
 @media (max-width:900px){ .wall{columns:2} }
@@ -419,6 +470,97 @@ footer .sep{opacity:.35}
         <figcaption><b>Find what you need today</b>Collections for gratitude and prayer — and for anxious, lost or alone.</figcaption>
       </figure>
     </div>
+  </div>
+</section>
+
+<!-- ══════════ THEMES ══════════ -->
+<section>
+  <div class="wrap">
+    <div class="head rv">
+      <h2>Your feed, your look</h2>
+      <p>One tap swaps the whole mood — same words, five very different rooms to read them in.</p>
+    </div>
+
+    <div class="themes rv">
+      <figure class="theme">
+        <div class="phone">
+          <div class="screen">
+            <img src="assets/shots/theme-scripture.jpg" width="552" height="1200" loading="lazy"
+                 alt="The feed in the Scripture theme: parchment background with a serif quote from Henry B. Eyring">
+          </div>
+        </div>
+        <figcaption><span class="swatch" style="background:#E8D4B8"></span>Scripture</figcaption>
+      </figure>
+
+      <figure class="theme">
+        <div class="phone">
+          <div class="screen">
+            <img src="assets/shots/theme-ocean.jpg" width="552" height="1200" loading="lazy"
+                 alt="The feed in the Ocean theme: deep blue-teal gradient with a white quote from Thomas S. Monson">
+          </div>
+        </div>
+        <figcaption><span class="swatch" style="background:#4CA1AF"></span>Ocean</figcaption>
+      </figure>
+
+      <figure class="theme">
+        <div class="phone">
+          <div class="screen">
+            <img src="assets/shots/theme-sunrise.jpg" width="552" height="1200" loading="lazy"
+                 alt="The feed in the Sunrise theme: warm golden gradient with a quote from Heber J. Grant">
+          </div>
+        </div>
+        <figcaption><span class="swatch" style="background:#D1913C"></span>Sunrise</figcaption>
+      </figure>
+
+      <figure class="theme">
+        <div class="phone">
+          <div class="screen">
+            <img src="assets/shots/theme-forest.jpg" width="552" height="1200" loading="lazy"
+                 alt="The feed in the Forest theme: deep green background with a left-aligned serif quote from Neil L. Andersen">
+          </div>
+        </div>
+        <figcaption><span class="swatch" style="background:#31473A"></span>Forest</figcaption>
+      </figure>
+
+      <figure class="theme">
+        <div class="phone">
+          <div class="screen">
+            <img src="assets/shots/theme-ink.jpg" width="552" height="1200" loading="lazy"
+                 alt="The feed in the Ink theme: black background with a white Times New Roman quote from Bonnie H. Cordon">
+          </div>
+        </div>
+        <figcaption><span class="swatch" style="background:#111"></span>Ink</figcaption>
+      </figure>
+    </div>
+
+    <p class="themes-note rv">Eight ready-made themes — and every one of them is just a starting point.
+    Change the <b>font, size, colour and alignment</b> of the quote and author separately, then set a
+    <b>solid colour, gradient or photo background</b>. Prefer swiping sideways? Flip the whole feed
+    from vertical to horizontal.</p>
+  </div>
+</section>
+
+<!-- ══════════ FULL FEATURE LIST ══════════ -->
+<section>
+  <div class="wrap">
+    <div class="head rv">
+      <h2>And the rest of it</h2>
+      <p>Everything inside the app, in one honest list.</p>
+    </div>
+    <ul class="checklist rv" style="padding-left:0; margin:0">
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Quote of the day</b> — a fresh, hand-picked quote every morning</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Swipeable feed</b> — vertical or horizontal, you choose</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Quotes for You</b> — answer a few questions, get quotes matched to how you feel</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>20+ collections</b> — gratitude, prayer, anxious, grief, family, callings and more</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>8 one-tap themes</b> — plus full control of fonts, colours and backgrounds</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Home Screen widgets</b> — a quote where you already look, in the style you chose</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Listen</b> — quotes read aloud, with gentle ambient sounds for study</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Read the full talk</b> — jump from any quote straight to its source</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Share cards</b> — turn any quote into an image worth posting</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Favourites &amp; collections</b> — save what speaks to you, synced to your account</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>Streaks &amp; reminders</b> — a gentle nudge at the time you pick</span></li>
+      <li><span class="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></span><span><b>iPhone &amp; iPad</b> — free to download, no account needed to start</span></li>
+    </ul>
   </div>
 </section>
 
