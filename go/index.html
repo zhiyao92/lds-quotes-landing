@@ -14,13 +14,21 @@
   so the hit count for /go IS the number of App Store button clicks. Then we bounce the
   visitor on to Apple.
 
-  Why a redirect page instead of a click handler: Cloudflare Web Analytics (the free
-  tier) only counts pageviews — it has no custom-event API. A real page gives us a real
-  pageview, with no extra service and no extra account.
+  Getting the bounce to actually open the App Store is harder than it sounds, because
+  this page is mostly reached from inside the Instagram in-app browser, often via a
+  link shortener:
+  - the redirect targets window.top, in case a shortener serves the page in a frame
+  - a plain meta refresh (not inside noscript) is the fallback when JS is blocked
+  - if the https link hasn't taken us away after a beat, we retry with itms-apps://,
+    which in-app webviews hand straight to the App Store app
+  - the manual link stays on screen the whole time
 
-  The ?src= query string says which button was clicked (hero / final / sticky) and shows
-  up in Cloudflare under the /go path's query breakdown.
+  The ?src= query string says which button was clicked (hero / final / sticky / footer)
+  and shows up in Cloudflare under the /go path's query breakdown.
 -->
+
+<!-- JS-less fallback: give the analytics beacon 2s, then go -->
+<meta http-equiv="refresh" content="2;url=https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">
 
 <link rel="icon" href="../assets/favicon.png">
 <style>
@@ -47,22 +55,32 @@
   <div class="box">
     <img src="../assets/app-icon.png" alt="LDS Quotes">
     <div class="spin" aria-hidden="true"></div>
-    <p>Taking you to the App Store…</p>
-    <p><a id="fallback" href="https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">Tap here if nothing happens</a></p>
+    <p>Taking you to the App&nbsp;Store…</p>
+    <p><a id="fallback" href="https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">Tap here if it doesn&rsquo;t open</a></p>
   </div>
 
 <script>
 (function () {
-  var APP_STORE = 'https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8';
-  document.getElementById('fallback').href = APP_STORE;
+  var HTTPS = 'https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8';
+  var ITMS  = 'itms-apps://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8';
 
-  // Give the Cloudflare Web Analytics beacon a moment to fire before we navigate away,
+  function goTo(url) {
+    // a shortener may serve us inside a frame — aim for the top window,
+    // fall back to our own if cross-origin rules say no
+    try { window.top.location.href = url; }
+    catch (e) { window.location.href = url; }
+  }
+
+  // Give the Cloudflare Web Analytics beacon a moment to fire before navigating away,
   // otherwise the redirect can cancel the request and the click goes uncounted.
-  setTimeout(function () { window.location.replace(APP_STORE); }, 450);
+  setTimeout(function () { goTo(HTTPS); }, 350);
+
+  // Still here? An in-app browser likely ate the https hop. itms-apps:// is handed
+  // straight to the App Store app. (If the first hop worked, this never runs.)
+  setTimeout(function () {
+    if (!document.hidden) { goTo(ITMS); }
+  }, 1800);
 })();
 </script>
-<noscript>
-  <meta http-equiv="refresh" content="0; url=https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">
-</noscript>
 </body>
 </html>
