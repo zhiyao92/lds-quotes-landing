@@ -14,21 +14,24 @@
   so the hit count for /go IS the number of App Store button clicks. Then we bounce the
   visitor on to Apple.
 
-  Getting the bounce to actually open the App Store is harder than it sounds, because
-  this page is mostly reached from inside the Instagram in-app browser, often via a
-  link shortener:
+  This page is mostly reached from inside the Instagram in-app browser, often via a
+  link shortener, so the bounce is one plain https hop to apps.apple.com:
+  - in real Safari, apps.apple.com hands straight off to the App Store app
+  - in an in-app browser it loads Apple's web page for the app — listing,
+    screenshots and the Get button — and the Get tap opens the App Store
   - the redirect targets window.top, in case a shortener serves the page in a frame
   - a plain meta refresh (not inside noscript) is the fallback when JS is blocked
-  - if the https link hasn't taken us away after a beat, we retry with itms-apps://,
-    which in-app webviews hand straight to the App Store app
   - the manual link stays on screen the whole time
+
+  Deliberately NOT here: an automatic itms-apps:// retry. In webviews that had
+  already loaded Apple's page it popped a "Cannot open page" dialog.
 
   The ?src= query string says which button was clicked (hero / final / sticky / footer)
   and shows up in Cloudflare under the /go path's query breakdown.
 -->
 
-<!-- JS-less fallback: give the analytics beacon 2s, then go -->
-<meta http-equiv="refresh" content="2;url=https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">
+<!-- JS-less fallback: give the analytics beacon a second, then go -->
+<meta http-equiv="refresh" content="1;url=https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">
 
 <link rel="icon" href="../assets/favicon.png">
 <style>
@@ -61,8 +64,16 @@
 
 <script>
 (function () {
-  var HTTPS = 'https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8';
-  var ITMS  = 'itms-apps://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8';
+  var STORE = 'https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8';
+
+  // One https hop, nothing clever. In real Safari, apps.apple.com hands straight off
+  // to the App Store app. In the Instagram in-app browser it loads Apple's web page
+  // for the app — listing, screenshots and the Get button — which is exactly the
+  // right landing: the user taps Get and iOS opens the App Store.
+  //
+  // (An earlier version auto-retried with itms-apps:// — in webviews that had
+  // already loaded Apple's page it could pop a "Cannot open page" dialog, so
+  // the scheme trick is now reserved for the manual link only.)
 
   function goTo(url) {
     // a shortener may serve us inside a frame — aim for the top window,
@@ -71,15 +82,8 @@
     catch (e) { window.location.href = url; }
   }
 
-  // Give the Cloudflare Web Analytics beacon a moment to fire before navigating away,
-  // otherwise the redirect can cancel the request and the click goes uncounted.
-  setTimeout(function () { goTo(HTTPS); }, 350);
-
-  // Still here? An in-app browser likely ate the https hop. itms-apps:// is handed
-  // straight to the App Store app. (If the first hop worked, this never runs.)
-  setTimeout(function () {
-    if (!document.hidden) { goTo(ITMS); }
-  }, 1800);
+  // Short pause so the Cloudflare Web Analytics beacon fires before we navigate away.
+  setTimeout(function () { goTo(STORE); }, 300);
 })();
 </script>
 </body>
