@@ -4,7 +4,7 @@ A single-page, mobile-first landing page for the **LDS Quotes** iOS app, built f
 Instagram "link in bio" slot.
 
 - `index.html` — the whole page (no build step, no dependencies except Google Fonts)
-- `go/index.html` — click-counting redirect to the App Store (see *Measuring clicks*)
+- `go/index.html` — legacy redirect to the App Store (buttons now link direct; kept for cached URLs)
 - `assets/app-icon.png` — app icon, exported from the app's asset catalog
 - `assets/favicon.png` — favicon / Apple touch icon
 - `assets/shots/` — real screenshots captured from the app in the iOS Simulator
@@ -12,13 +12,21 @@ Instagram "link in bio" slot.
 
 ## Where the links point
 
-Every call-to-action goes to `/go`, which counts the click and then forwards to the App
-Store link with the Instagram campaign token attached, so installs still show up under
-**Instagram** in App Store Connect → App Analytics:
+Every call-to-action is a **plain direct link** to the App Store with the Instagram
+campaign token attached:
 
 ```
 https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8
 ```
+
+Direct on purpose: in-app browsers (Instagram's especially) reliably open the App
+Store from a real user tap on an apps.apple.com link, but suppress JS-initiated
+redirects. The `/go` interstitial that used to sit in between broke exactly that,
+so the buttons no longer route through it. `/go` still works for anything that has
+the old URL cached.
+
+The page also carries Apple's Smart App Banner meta tag, so Safari visitors get a
+native GET banner at the top for free.
 
 ## Deploy — Cloudflare Pages
 
@@ -39,24 +47,16 @@ Every push to `main` redeploys automatically.
 **Settings → Custom domains → Set up a domain**. If the domain is already on Cloudflare
 DNS the record is created for you.
 
-## Measuring clicks
-
-**Cloudflare Pages → the project → Metrics → Web Analytics → Enable.** Cloudflare injects
-its beacon automatically; nothing needs to be pasted into `index.html`.
-
-Two numbers matter, and you read both from the same dashboard:
+## Measuring the funnel
 
 | Number | Where to read it |
 |---|---|
-| People who opened the link | pageviews of `/` |
-| People who tapped "Download" | pageviews of `/go` |
+| People who opened the link | Cloudflare Web Analytics — pageviews of `/` |
+| Product-page views & installs from those taps | **App Store Connect → Analytics → Sources** — campaign `Instagram` (the `ct`/`pt` tokens on every button) |
 
-Cloudflare Web Analytics is free and unlimited, is cookieless, and needs no consent
-banner. It only counts pageviews — it has no custom-event API — which is exactly why the
-CTAs route through the real `/go` page instead of firing a JS event.
-
-`/go?src=hero`, `?src=final` and `?src=sticky` distinguish which button was tapped; the
-query strings show up in the path breakdown.
+Button-tap counting via the `/go` interstitial was removed — it cost App Store
+handoff reliability in in-app browsers, and Apple's campaign attribution already
+reports the numbers that matter (views and downloads per campaign).
 
 ## GitHub Pages (backup)
 
