@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opening the App Store…</title>
+<meta name="robots" content="noindex">
+
+<!--
+  Click-counting redirect.
+
+  Every "Download on the App Store" button on the landing page points here instead of
+  going straight to Apple. Cloudflare Web Analytics records this as a pageview of /go,
+  so the hit count for /go IS the number of App Store button clicks. Then we bounce the
+  visitor on to Apple.
+
+  Why a redirect page instead of a click handler: Cloudflare Web Analytics (the free
+  tier) only counts pageviews — it has no custom-event API. A real page gives us a real
+  pageview, with no extra service and no extra account.
+
+  The ?src= query string says which button was clicked (hero / final / sticky) and shows
+  up in Cloudflare under the /go path's query breakdown.
+-->
+
+<link rel="icon" href="../assets/favicon.png">
+<style>
+  body{
+    margin:0; min-height:100vh; display:grid; place-items:center;
+    background:#FBF4E4; color:#2E3226;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    text-align:center; padding:24px;
+  }
+  .box{max-width:320px}
+  img{width:76px; height:76px; border-radius:18px; box-shadow:0 10px 30px rgba(46,50,38,.18)}
+  p{color:#5C6151; font-size:15px; margin:18px 0 0}
+  a{color:#6C7C4F}
+  .spin{
+    margin:20px auto 0; width:22px; height:22px; border-radius:50%;
+    border:2.5px solid rgba(46,50,38,.15); border-top-color:#8C9C6E;
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){ .spin{animation:none} }
+</style>
+</head>
+<body>
+  <div class="box">
+    <img src="../assets/app-icon.png" alt="LDS Quotes">
+    <div class="spin" aria-hidden="true"></div>
+    <p>Taking you to the App Store…</p>
+    <p><a id="fallback" href="https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">Tap here if nothing happens</a></p>
+  </div>
+
+<script>
+(function () {
+  var APP_STORE = 'https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&ct=Instagram&mt=8';
+  document.getElementById('fallback').href = APP_STORE;
+
+  // Give the Cloudflare Web Analytics beacon a moment to fire before we navigate away,
+  // otherwise the redirect can cancel the request and the click goes uncounted.
+  setTimeout(function () { window.location.replace(APP_STORE); }, 450);
+})();
+</script>
+<noscript>
+  <meta http-equiv="refresh" content="0; url=https://apps.apple.com/app/apple-store/id1506121689?pt=118418326&amp;ct=Instagram&amp;mt=8">
+</noscript>
+</body>
+</html>
